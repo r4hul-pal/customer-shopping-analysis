@@ -1,0 +1,72 @@
+import pandas as pd 
+import matplotlib as plt 
+data = pd.read_csv(r"C:\Users\Rahul Pal\Downloads\archive (1)\customer_shopping_behavior.csv")
+data.shape[0]
+data.describe(include = "all")
+data.info()
+data["Item Purchased"].unique()
+pd.set_option("display.max_colwidth",None)
+pd.set_option("display.max_columns",None)
+pd.set_option("display.max_rows",None)
+data.groupby("Category")["Item Purchased"].unique()
+item_to_category = {
+    "Sunglasses": "Accessories",
+    "Gloves": "Accessories",
+    "Jewelry": "Accessories",
+    "Hat": "Accessories",
+    "Handbag": "Accessories",
+    "Belt": "Accessories",
+    "Scarf": "Accessories",
+    "Bag": "Accessories",
+    "Backpack": "Accessories",
+
+    "T-shirt": "Clothing",
+    "Shirt": "Clothing",
+    "Shorts": "Clothing",
+    "Hoodie": "Clothing",
+    "Pants": "Clothing",
+    "Socks": "Clothing",
+    "Jeans": "Clothing",
+    "Blouse": "Clothing",
+    "Skirt": "Clothing",
+    "Sweater": "Clothing",
+    "Dress": "Clothing",
+
+    "Laptop": "Electronics",
+    "Phone": "Electronics",
+    "Headphones": "Electronics",
+    "Watch": "Electronics",
+
+    "Shoes": "Footwear",
+    "Sandals": "Footwear",
+    "Sneakers": "Footwear",
+    "Boots": "Footwear",
+
+    "Coat": "Outerwear",
+    "Jacket": "Outerwear"
+}data["Category"] = data["Item Purchased"].map(item_to_category)
+data.isnull().sum()
+data["Category"].unique()
+data.groupby("Category")["Size"].unique()
+data["Size"].isnull().sum()
+#treating null values  or replacing all values in the electronic  category 
+data.loc[data["Category"]=="Electronics" , "Size"] = "Not applicable"
+#treating null values  or replacing all values in the Accessories  category 
+data.loc[data["Category"]=="Accessories" , "Size"] = "Free Size"
+#treating null values  or replacing all values in the Footwear  category 
+data.loc[data["Category"]=="Footwear" , "Size"] = "Not available"
+#treating null values  or replacing all values in the clothing category 
+data.loc[(data["Category"]=="Clothing") & (data["Size"].isnull()) ,"Size"] = data[data["Category"]=="Clothing"]["Size"].mode()[0]
+data.groupby("Item Purchased")["Review Rating"].mean()
+# filling null values  of Review Rating  by the mean the product 
+data["Review Rating"] = data["Review Rating"].fillna(data.groupby("Item Purchased")["Review Rating"].transform("mean")).round(1)
+# dilling null values by 0 in previous puchase
+data["Previous Purchases"] = data["Previous Purchases"].fillna(0)
+data.groupby("Item Purchased")["Purchase Amount (USD)"].mean()
+data["Purchase Amount (USD)"] = data["Purchase Amount (USD)"].fillna(data.groupby("Item Purchased")["Purchase Amount (USD)"].transform("mean"))
+data.isnull().sum()
+data.duplicated().sum()
+data[data.duplicated()]
+data = data.drop_duplicates(subset = ["Customer ID"] , keep = "first")
+data.columns
+data = data.rename(columns={"Purchase_Amount_(USD)" : "Purchase_amount"})
